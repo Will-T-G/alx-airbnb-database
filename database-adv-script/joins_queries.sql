@@ -17,7 +17,7 @@ ON
     users.id = bookings.user_id;
 
 
-(2.) Write a query using aLEFT JOIN to retrieve all properties and their reviews, including properties that have no reviews.
+(2.) Write a query using a LEFT JOIN to retrieve all properties and their reviews, including properties that have no reviews.
 
 SELECT 
     properties.id AS property_id,
