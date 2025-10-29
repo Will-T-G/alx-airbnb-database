@@ -1,9 +1,3 @@
--- ============================================
--- File: database_index.sql
--- Purpose: Create indexes to improve query performance
--- Author: Matthew B. Kollie, III
--- ============================================
-
 -- 1️⃣ Create indexes on high-usage columns in Users, Bookings, and Properties
 
 -- Index for Users table (commonly used in WHERE or JOIN conditions)
