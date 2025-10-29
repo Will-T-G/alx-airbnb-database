@@ -1,5 +1,3 @@
--- 1️⃣ Initial (non-optimized) query
--- This query retrieves all bookings with user, property, and payment details
 EXPLAIN ANALYZE
 SELECT 
     b.id AS booking_id,
@@ -20,23 +18,26 @@ JOIN
     properties p ON b.property_id = p.id
 JOIN 
     payments pay ON pay.booking_id = b.id
+WHERE 
+    b.status = 'confirmed'
+    AND pay.status = 'completed'
 ORDER BY 
     b.booking_date DESC;
 
 
 -- ⚠️ Potential inefficiencies:
--- - SELECT * (or many columns) increases I/O cost
+-- - SELECT many columns increases I/O
 -- - ORDER BY without index slows down sorting
--- - Joining all tables when not all data is needed
--- - Missing indexes on user_id, property_id, booking_id
+-- - Unnecessary joins on large tables
+-- - Missing indexes on foreign keys
 
 
 -- 2️⃣ Refactored (optimized) query
 -- Improvements:
--- - Select only required fields
--- - Use proper indexing (see database_index.sql)
--- - Use LEFT JOIN if not all bookings have payments
--- - Avoid ORDER BY unless needed for output
+-- - Select only necessary fields
+-- - Apply proper indexes
+-- - Use LEFT JOIN for optional relationships
+-- - Maintain WHERE + AND for filtered access
 
 EXPLAIN ANALYZE
 SELECT 
@@ -51,18 +52,20 @@ INNER JOIN
 INNER JOIN 
     properties p ON b.property_id = p.id
 LEFT JOIN 
-    payments pay ON pay.booking_id = b.id;
+    payments pay ON pay.booking_id = b.id
+WHERE 
+    b.status = 'confirmed'
+    AND (pay.status = 'completed' OR pay.status IS NULL);
 
 
--- ✅ Expected improvements:
--- - Reduced execution time due to fewer columns and indexed joins
--- - Lower CPU and memory usage
--- - Faster response on large datasets
+-- ✅ Expected Improvements:
+-- - Reduced execution time
+-- - Better use of indexes on (status), (user_id), (property_id)
+-- - Lower I/O load
 
 
 -- ============================================
 -- 3️⃣ Notes for Report:
--- - Use EXPLAIN ANALYZE output to compare total cost and execution time
--- - After indexing, query performance can improve by 60–80% depending on dataset size
+-- - Compare EXPLAIN ANALYZE total cost & execution time
+-- - Indexing columns in WHERE clause improves performance drastically
 -- ============================================
-
